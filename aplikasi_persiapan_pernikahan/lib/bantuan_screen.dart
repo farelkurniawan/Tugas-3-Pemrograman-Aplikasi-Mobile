@@ -1,13 +1,31 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'login_page.dart';
 
 class BantuanScreen extends StatelessWidget {
   const BantuanScreen({super.key});
 
+  // FUNGSI MENGHAPUS SESI DAN KELUAR (LOGOUT)
+  Future<void> _logout(BuildContext context) async {
+    final prefs = await SharedPreferences.getInstance();
+    
+    // Menghapus data memori sesi login
+    await prefs.remove('isLoggedIn');
+
+    // Menendang user kembali ke halaman Login dan menghapus riwayat halaman
+    if (!context.mounted) return;
+    Navigator.pushAndRemoveUntil(
+      context,
+      MaterialPageRoute(builder: (context) => const LoginPage()),
+      (Route<dynamic> route) => false,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1A120B),
       appBar: AppBar(
         title: Text(
           'Bantuan & Logout',
@@ -16,7 +34,7 @@ class BantuanScreen extends StatelessWidget {
             fontWeight: FontWeight.bold,
           ),
         ),
-        backgroundColor: const Color(0xFF3C2A21),
+        backgroundColor: const Color(0xFF1A120B),
         elevation: 0,
         centerTitle: true,
       ),
@@ -38,30 +56,24 @@ class BantuanScreen extends StatelessWidget {
               child: ListView(
                 children: [
                   _buildHelpItem(
-                      '1. Halaman Utama', 'Berisi 5 menu utama sesuai dengan kriteria tugas: Daftar Anggota, Komputasi Weton, CRUD Acara, Konversi Umur/Hijriah, dan Konversi Kalender Saka.'),
+                      '1. Halaman Utama', 'Berisi 7 menu utama sesuai dengan kriteria tugas.'),
                   _buildHelpItem(
                       '2. Fitur Stopwatch', 'Gunakan menu tab di bawah (tengah) untuk membuka fitur Stopwatch.'),
                   _buildHelpItem(
-                      '3. Cara Menggunakan Menu', 'Ketuk salah satu kartu menu di halaman utama untuk membuka fitur yang diinginkan. Anda dapat kembali menggunakan tombol back di pojok kiri atas.'),
-                  _buildHelpItem(
-                      '4. Keluar (Logout)', 'Gunakan tombol berwarna merah di bagian bawah halaman ini untuk keluar dari sesi (session) saat ini.'),
+                      '3. Keluar (Logout)', 'Gunakan tombol berwarna merah di bagian bawah halaman ini untuk menghapus sesi dan keluar aplikasi.'),
                 ],
               ),
             ),
             const SizedBox(height: 20),
             
-            // TOMBOL LOGOUT 
+            // TOMBOL LOGOUT SESUAI KETENTUAN TUGAS
             SizedBox(
               width: double.infinity,
               height: 55,
               child: ElevatedButton.icon(
                 onPressed: () {
-                  // Logika Session Logout: Menghapus riwayat halaman dan kembali ke Login
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LoginPage()),
-                    (Route<dynamic> route) => false,
-                  );
+                  // Memanggil fungsi logout
+                  _logout(context);
                 },
                 icon: const Icon(Icons.logout, color: Colors.white),
                 label: Text(
@@ -73,7 +85,7 @@ class BantuanScreen extends StatelessWidget {
                   ),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.red[800], 
+                  backgroundColor: Colors.red[800],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -86,7 +98,6 @@ class BantuanScreen extends StatelessWidget {
     );
   }
 
-  // Widget tambahan biar rapi bikin list cara penggunaan
   Widget _buildHelpItem(String title, String desc) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 16.0),
@@ -95,20 +106,12 @@ class BantuanScreen extends StatelessWidget {
         children: [
           Text(
             title,
-            style: const TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: Color(0xFFE5E5CB),
-            ),
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Color(0xFFE5E5CB)),
           ),
           const SizedBox(height: 4),
           Text(
             desc,
-            style: TextStyle(
-              fontSize: 14,
-              color: Colors.white.withOpacity(0.7),
-              height: 1.5,
-            ),
+            style: TextStyle(fontSize: 14, color: Colors.white.withOpacity(0.7), height: 1.5),
           ),
         ],
       ),

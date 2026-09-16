@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'main_screen.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,16 +14,39 @@ class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  void _login() {
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => const MainScreen()),
-    );
+  // FUNGSI LOGIN STATIS & SESSION
+  Future<void> _login() async {
+    String username = _usernameController.text;
+    String password = _passwordController.text;
+
+    // Cek Kredensial Statis
+    if (username == 'admin' && password == 'admin81') {
+      // Jika benar, simpan sesi ke dalam SharedPreferences
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('isLoggedIn', true);
+
+      // Lalu arahkan ke halaman utama
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainScreen()),
+      );
+    } else {
+      // Jika salah, tampilkan pesan peringatan di bawah layar
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Username atau Password salah!'),
+          backgroundColor: Colors.redAccent,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFF1A120B),
       body: Center(
         child: SingleChildScrollView(
           child: Padding(
@@ -30,7 +54,7 @@ class _LoginPageState extends State<LoginPage> {
             child: Container(
               padding: const EdgeInsets.all(32.0),
               decoration: BoxDecoration(
-                color: const Color(0xFF3C2A21), // Coklat wayang
+                color: const Color(0xFF3C2A21), 
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: [
                   BoxShadow(
@@ -43,20 +67,15 @@ class _LoginPageState extends State<LoginPage> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.diversity_1, size: 60, color: const Color(0xFFD5CEA3)),
+                  const Icon(Icons.lock_person, size: 60, color: Color(0xFFD5CEA3)),
                   const SizedBox(height: 16),
                   Text(
-                    'Pintu Gerbang',
+                    'Login',
                     style: GoogleFonts.philosopher(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: const Color(0xFFD5CEA3),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Persiapan Pernikahan',
-                    style: TextStyle(color: Colors.white.withOpacity(0.7), fontSize: 14),
                   ),
                   const SizedBox(height: 40),
                   
@@ -67,7 +86,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color(0xFF1A120B),
-                      hintText: 'Nama Pengguna',
+                      hintText: 'Username',
                       hintStyle: const TextStyle(color: Colors.white38),
                       prefixIcon: const Icon(Icons.person_outline, color: Color(0xFFD5CEA3)),
                       border: OutlineInputBorder(
@@ -86,7 +105,7 @@ class _LoginPageState extends State<LoginPage> {
                     decoration: InputDecoration(
                       filled: true,
                       fillColor: const Color(0xFF1A120B),
-                      hintText: 'Kata Sandi',
+                      hintText: 'Password',
                       hintStyle: const TextStyle(color: Colors.white38),
                       prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFD5CEA3)),
                       border: OutlineInputBorder(
@@ -104,9 +123,8 @@ class _LoginPageState extends State<LoginPage> {
                     child: ElevatedButton(
                       onPressed: _login,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFFD5CEA3), // Emas
-                        foregroundColor: const Color(0xFF1A120B), // Teks hitam
-                        elevation: 5,
+                        backgroundColor: const Color(0xFFD5CEA3),
+                        foregroundColor: const Color(0xFF1A120B),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
