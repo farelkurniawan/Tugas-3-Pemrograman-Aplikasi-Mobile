@@ -13,13 +13,14 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
+  
+  bool _isObscured = true; 
 
-  // FUNGSI LOGIN STATIS & SESSION
+  //LOGIN STATIS & SESSION
   Future<void> _login() async {
     String username = _usernameController.text;
     String password = _passwordController.text;
 
-    // Cek Kredensial Statis
     if (username == 'admin' && password == 'admin81') {
       // Jika benar, simpan sesi ke dalam SharedPreferences
       final prefs = await SharedPreferences.getInstance();
@@ -100,7 +101,7 @@ class _LoginPageState extends State<LoginPage> {
                   // Form Password
                   TextField(
                     controller: _passwordController,
-                    obscureText: true,
+                    obscureText: _isObscured, 
                     style: const TextStyle(color: Colors.white),
                     decoration: InputDecoration(
                       filled: true,
@@ -108,6 +109,19 @@ class _LoginPageState extends State<LoginPage> {
                       hintText: 'Password',
                       hintStyle: const TextStyle(color: Colors.white38),
                       prefixIcon: const Icon(Icons.lock_outline, color: Color(0xFFD5CEA3)),
+                      
+                      suffixIcon: IconButton(
+                        icon: Icon(
+                          _isObscured ? Icons.visibility_off : Icons.visibility,
+                          color: const Color(0xFFD5CEA3),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _isObscured = !_isObscured; 
+                          });
+                        },
+                      ),
+                      
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
                         borderSide: BorderSide.none,
