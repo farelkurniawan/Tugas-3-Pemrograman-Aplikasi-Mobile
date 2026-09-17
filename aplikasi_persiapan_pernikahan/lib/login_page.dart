@@ -25,7 +25,7 @@ class _LoginPageState extends State<LoginPage> {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setBool('isLoggedIn', true);
 
-      // Lalu arahkan ke halaman utama
+      //arahkan ke halaman utama
       if (!mounted) return;
       Navigator.pushReplacement(
         context,

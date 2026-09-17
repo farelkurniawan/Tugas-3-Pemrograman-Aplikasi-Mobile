@@ -66,7 +66,7 @@ class BantuanScreen extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             
-            // TOMBOL LOGOUT SESUAI KETENTUAN TUGAS
+            // TOMBOL LOGOUT 
             SizedBox(
               width: double.infinity,
               height: 55,
@@ -77,7 +77,7 @@ class BantuanScreen extends StatelessWidget {
                 },
                 icon: const Icon(Icons.logout, color: Colors.white),
                 label: Text(
-                  'LOGOUT SESI',
+                  'LOGOUT',
                   style: GoogleFonts.philosopher(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

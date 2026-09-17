@@ -25,9 +25,6 @@ class BerandaScreen extends StatelessWidget {
     ];
 
     return Scaffold(
-      // AppBar sengaja dihapus agar tidak ada teks "Menu Utama"
-      
-      // SafeArea memastikan UI tidak tertutup ikon sinyal/baterai di HP
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -39,7 +36,6 @@ class BerandaScreen extends StatelessWidget {
                 children: [
                   const SizedBox(height: 20),
                   
-                  // HANYA ADA SATU TEKS JUDUL INI SAJA
                   Text(
                     'Persiapan Pernikahan',
                     textAlign: TextAlign.center,

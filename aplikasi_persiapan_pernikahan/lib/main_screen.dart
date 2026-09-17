@@ -23,6 +23,7 @@ class _MainScreenState extends State<MainScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: _pages[_currentIndex],
+      
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           boxShadow: [
@@ -34,8 +35,8 @@ class _MainScreenState extends State<MainScreen> {
           ],
         ),
         child: BottomNavigationBar(
-          backgroundColor: const Color(0xFF3C2A21), // Coklat
-          selectedItemColor: const Color(0xFFD5CEA3), // Emas
+          backgroundColor: const Color(0xFF3C2A21), 
+          selectedItemColor: const Color(0xFFD5CEA3), 
           unselectedItemColor: Colors.white54,
           currentIndex: _currentIndex,
           type: BottomNavigationBarType.fixed,

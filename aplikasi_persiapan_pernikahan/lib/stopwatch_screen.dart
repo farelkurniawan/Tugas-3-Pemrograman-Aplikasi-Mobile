@@ -13,8 +13,8 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
   final Stopwatch _stopwatch = Stopwatch();
   Timer? _timer;
   final List<String> _laps = [];
+  bool _isStopped = false; 
 
-  // Fungsi untuk memformat waktu ke MM:SS:MS
   String _formatTime(int milliseconds) {
     int hundreds = (milliseconds / 10).truncate();
     int seconds = (hundreds / 100).truncate();
@@ -27,39 +27,55 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     return "$minutesStr:$secondsStr.$hundredsStr";
   }
 
-  // Fungsi menjalankan Stopwatch
+  // Fungsi Play
   void _startStopwatch() {
+    if (_isStopped) return; 
+    
     setState(() {
       _stopwatch.start();
     });
-    // Update UI setiap 30 milidetik agar angka terlihat berjalan mulus
     _timer = Timer.periodic(const Duration(milliseconds: 30), (timer) {
       setState(() {});
     });
   }
 
-  // Fungsi menghentikan Stopwatch (Pause)
+  // Fungsi Pause (Jeda Sementara)
+  void _pauseStopwatch() {
+    setState(() {
+      _stopwatch.stop();
+    });
+  }
+
+  // Fungsi Stop (Berhenti Total)
   void _stopStopwatch() {
     setState(() {
       _stopwatch.stop();
+      _isStopped = true; // Mengunci stopwatch agar tidak bisa di-play lagi sebelum reset
+      
+      // (Opsional) Otomatis mencatat waktu terakhir saat ditekan Stop
+      if (_stopwatch.elapsedMilliseconds > 0) {
+        _laps.insert(0, "Waktu Final: ${_formatTime(_stopwatch.elapsedMilliseconds)}");
+      }
     });
     _timer?.cancel();
   }
 
-  // Fungsi mereset Stopwatch
+  // Fungsi Reset (Kembali ke 0)
   void _resetStopwatch() {
-    _stopStopwatch();
     setState(() {
+      _stopwatch.stop();
       _stopwatch.reset();
-      _laps.clear(); // Hapus semua catatan Lap
+      _laps.clear(); 
+      _isStopped = false; // Membuka kunci agar bisa di-play lagi dari 0
     });
+    _timer?.cancel();
   }
 
-  // Fungsi mencatat waktu (Lap)
+  // Fungsi Lap (Catat Waktu)
   void _addLap() {
     if (_stopwatch.isRunning) {
       setState(() {
-        _laps.insert(0, _formatTime(_stopwatch.elapsedMilliseconds)); // Masukkan di paling atas
+        _laps.insert(0, _formatTime(_stopwatch.elapsedMilliseconds)); 
       });
     }
   }
@@ -92,15 +108,20 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
           children: [
             const SizedBox(height: 40),
             
-            // TAMPILAN ANGKA WAKTU
+            // LINGKARAN ANGKA WAKTU
             Container(
               padding: const EdgeInsets.all(40),
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                border: Border.all(color: const Color(0xFF3C2A21), width: 8),
+                border: Border.all(
+                  color: _isStopped ? Colors.redAccent.withOpacity(0.5) : const Color(0xFF3C2A21), 
+                  width: 8
+                ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFFD5CEA3).withOpacity(0.1),
+                    color: _isStopped 
+                        ? Colors.redAccent.withOpacity(0.1) 
+                        : const Color(0xFFD5CEA3).withOpacity(0.1),
                     blurRadius: 20,
                     spreadRadius: 5,
                   ),
@@ -108,42 +129,54 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
               ),
               child: Text(
                 _formatTime(_stopwatch.elapsedMilliseconds),
-                style: const TextStyle(
+                style: TextStyle(
                   fontSize: 48,
                   fontWeight: FontWeight.w300,
-                  color: Color(0xFFE5E5CB),
+                  color: _isStopped ? Colors.redAccent : const Color(0xFFE5E5CB),
                   letterSpacing: 2,
                 ),
               ),
             ),
             const SizedBox(height: 40),
 
-            // TOMBOL KONTROL (START, PAUSE, LAP, RESET)
+            // KUMPULAN 4 TOMBOL
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                // Tombol Reset
+                // 1. Tombol Reset (Abu-abu)
                 _buildControlButton(
                   icon: Icons.refresh,
                   onPressed: _resetStopwatch,
+                  color: Colors.white54,
+                ),
+                const SizedBox(width: 15),
+
+                // 2. Tombol Stop Total (Kotak Merah)
+                _buildControlButton(
+                  icon: Icons.stop,
+                  onPressed: (_stopwatch.isRunning || (_stopwatch.elapsedMilliseconds > 0 && !_isStopped)) 
+                      ? _stopStopwatch 
+                      : null,
                   color: Colors.redAccent,
                 ),
-                const SizedBox(width: 20),
-                
-                // Tombol Play / Pause (Otomatis berubah)
+                const SizedBox(width: 15),
+
+                // 3. Tombol Play / Pause (Emas / Tengah)
                 FloatingActionButton(
-                  onPressed: _stopwatch.isRunning ? _stopStopwatch : _startStopwatch,
-                  backgroundColor: const Color(0xFFD5CEA3),
+                  onPressed: _isStopped 
+                      ? null // Jika sudah stop total, tombol play mati (harus di-reset dulu)
+                      : (_stopwatch.isRunning ? _pauseStopwatch : _startStopwatch),
+                  backgroundColor: _isStopped ? Colors.grey[800] : const Color(0xFFD5CEA3),
                   elevation: 5,
                   child: Icon(
                     _stopwatch.isRunning ? Icons.pause : Icons.play_arrow,
-                    color: const Color(0xFF1A120B),
+                    color: _isStopped ? Colors.white38 : const Color(0xFF1A120B),
                     size: 32,
                   ),
                 ),
-                const SizedBox(width: 20),
-                
-                // Tombol Lap (Catatan)
+                const SizedBox(width: 15),
+
+                // 4. Tombol Lap / Catatan Waktu (Bendera)
                 _buildControlButton(
                   icon: Icons.flag_outlined,
                   onPressed: _stopwatch.isRunning ? _addLap : null,
@@ -153,7 +186,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
             ),
             const SizedBox(height: 30),
 
-            // DAFTAR LAP (CATATAN WAKTU)
+            // DAFTAR LAP
             Expanded(
               child: Container(
                 decoration: const BoxDecoration(
@@ -174,26 +207,28 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
                         padding: const EdgeInsets.all(20),
                         itemCount: _laps.length,
                         itemBuilder: (context, index) {
-                          // Nomor urut lap (karena urutan dibalik dari paling baru)
-                          int lapNumber = _laps.length - index;
+                          // Jika itu "Waktu Final" karena tombol stop ditekan
+                          bool isFinal = _laps[index].contains("Waktu Final");
+                          
                           return Padding(
                             padding: const EdgeInsets.symmetric(vertical: 8.0),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
                                 Text(
-                                  'Lap $lapNumber',
+                                  isFinal ? 'SELESAI' : 'Lap ${_laps.length - index}',
                                   style: TextStyle(
                                     fontSize: 16,
-                                    color: Colors.white.withOpacity(0.7),
+                                    fontWeight: isFinal ? FontWeight.bold : FontWeight.normal,
+                                    color: isFinal ? Colors.redAccent : Colors.white.withOpacity(0.7),
                                   ),
                                 ),
                                 Text(
-                                  _laps[index],
-                                  style: const TextStyle(
+                                  isFinal ? _laps[index].replaceAll("Waktu Final: ", "") : _laps[index],
+                                  style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Color(0xFFD5CEA3),
+                                    color: isFinal ? Colors.redAccent : const Color(0xFFD5CEA3),
                                   ),
                                 ),
                               ],
@@ -209,7 +244,6 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
     );
   }
 
-  // Widget kustom untuk tombol kontrol agar bentuknya rapi
   Widget _buildControlButton({required IconData icon, required VoidCallback? onPressed, required Color color}) {
     return Container(
       decoration: BoxDecoration(
