@@ -4,94 +4,248 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class AcaraPentingScreen extends StatelessWidget {
   const AcaraPentingScreen({super.key});
 
-  // Fungsi untuk menampilkan form input (Tambah/Edit Data) di Bottom Sheet
   void _showForm(BuildContext context, [DocumentSnapshot? documentSnapshot]) {
     final TextEditingController namaAcaraController = TextEditingController();
     final TextEditingController tanggalController = TextEditingController();
+    final TextEditingController waktuController = TextEditingController();
 
-    // Jika documentSnapshot tidak null, berarti kita sedang mode 'Edit'
+    // Variabel untuk menyimpan objek DateTime & TimeOfDay
+    DateTime? selectedDate;
+    TimeOfDay? selectedTime;
+
+    // Jika mode EDIT, ambil data lama dan konversi ke objek DateTime agar validasinya akurat
     if (documentSnapshot != null) {
       namaAcaraController.text = documentSnapshot['nama_acara'];
-      tanggalController.text = documentSnapshot['tanggal'];
+      String tglStr = documentSnapshot['tanggal']; // Format: DD/MM/YYYY
+      String wktStr = documentSnapshot.data().toString().contains('waktu') ? documentSnapshot['waktu'] : '00:00 WIB';
+      
+      tanggalController.text = tglStr;
+      waktuController.text = wktStr;
+
+      try {
+        // Parsing kembali tanggal string ke DateTime
+        List<String> partsTgl = tglStr.split('/');
+        int day = int.parse(partsTgl[0]);
+        int month = int.parse(partsTgl[1]);
+        int year = int.parse(partsTgl[2]);
+
+        // Parsing waktu string ke TimeOfDay (format "HH:MM WIB")
+        String cleanTime = wktStr.replaceAll(' WIB', '');
+        List<String> partsWkt = cleanTime.split(':');
+        int hour = int.parse(partsWkt[0]);
+        int minute = int.parse(partsWkt[1]);
+
+        selectedDate = DateTime(year, month, day);
+        selectedTime = TimeOfDay(hour: hour, minute: minute);
+      } catch (e) {
+        // Fallback aman jika format lama berbeda
+        selectedDate = DateTime.now();
+        selectedTime = TimeOfDay.now();
+      }
     }
 
     showModalBottomSheet(
       context: context,
-      backgroundColor: const Color(0xFF3C2A21), // Sesuai tema
+      backgroundColor: const Color(0xFF3C2A21),
       isScrollControlled: true,
       builder: (BuildContext context) {
-        return Padding(
-          padding: EdgeInsets.only(
-            top: 20,
-            left: 20,
-            right: 20,
-            // Menghindari form tertutup keyboard
-            bottom: MediaQuery.of(context).viewInsets.bottom + 20,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                documentSnapshot == null ? 'Tambah Acara Baru' : 'Edit Acara',
-                style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+        return StatefulBuilder(
+          builder: (BuildContext context, StateSetter setStateModal) {
+            return Padding(
+              padding: EdgeInsets.only(
+                top: 20,
+                left: 20,
+                right: 20,
+                bottom: MediaQuery.of(context).viewInsets.bottom + 20,
               ),
-              const SizedBox(height: 15),
-              TextField(
-                controller: namaAcaraController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Nama Acara (Misal: Survey Gedung)',
-                  labelStyle: TextStyle(color: Colors.greenAccent),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                ),
-              ),
-              TextField(
-                controller: tanggalController,
-                style: const TextStyle(color: Colors.white),
-                decoration: const InputDecoration(
-                  labelText: 'Tanggal (Misal: 12 Nov 2026)',
-                  labelStyle: TextStyle(color: Colors.greenAccent),
-                  enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
-                  focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                ),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    foregroundColor: Colors.black, // Warna teks tombol
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    documentSnapshot == null ? 'Tambah Acara Baru' : 'Edit Acara',
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                   ),
-                  onPressed: () async {
-                    final String namaAcara = namaAcaraController.text;
-                    final String tanggal = tanggalController.text;
+                  const SizedBox(height: 15),
+                  
+                  // Input Nama Acara
+                  TextField(
+                    controller: namaAcaraController,
+                    style: const TextStyle(color: Colors.white),
+                    decoration: const InputDecoration(
+                      labelText: 'Nama Acara',
+                      labelStyle: TextStyle(color: Colors.greenAccent),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                    ),
+                  ),
+                  
+                  // Input Tanggal
+                  TextField(
+                    controller: tanggalController,
+                    style: const TextStyle(color: Colors.white),
+                    readOnly: true, 
+                    decoration: const InputDecoration(
+                      labelText: 'Tanggal',
+                      labelStyle: TextStyle(color: Colors.greenAccent),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                      suffixIcon: Icon(Icons.calendar_today, color: Colors.greenAccent),
+                    ),
+                    onTap: () async {
+                      DateTime? pickedDate = await showDatePicker(
+                        context: context,
+                        initialDate: selectedDate ?? DateTime.now(),
+                        firstDate: DateTime.now(), 
+                        lastDate: DateTime(2100),  
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.dark(
+                                primary: Colors.greenAccent, 
+                                onPrimary: Colors.black, 
+                                onSurface: Colors.white, 
+                                surface: Color(0xFF3C2A21), 
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
 
-                    if (namaAcara.isNotEmpty && tanggal.isNotEmpty) {
-                      if (documentSnapshot == null) {
-                        // CREATE: Menambah data baru ke Firestore
-                        await FirebaseFirestore.instance.collection('acara_penting').add({
-                          'nama_acara': namaAcara,
-                          'tanggal': tanggal,
-                        });
-                      } else {
-                        // UPDATE: Mengubah data yang sudah ada
-                        await FirebaseFirestore.instance.collection('acara_penting').doc(documentSnapshot.id).update({
-                          'nama_acara': namaAcara,
-                          'tanggal': tanggal,
+                      if (pickedDate != null) {
+                        setStateModal(() {
+                          selectedDate = pickedDate;
+                          tanggalController.text = "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
                         });
                       }
-                      // Tutup form setelah selesai
-                      if (context.mounted) Navigator.of(context).pop();
-                    }
-                  },
-                  child: Text(documentSnapshot == null ? 'Simpan' : 'Update'),
-                ),
-              )
-            ],
-          ),
+                    },
+                  ),
+
+                  // Input Waktu
+                  TextField(
+                    controller: waktuController,
+                    style: const TextStyle(color: Colors.white),
+                    readOnly: true, 
+                    decoration: const InputDecoration(
+                      labelText: 'Waktu',
+                      labelStyle: TextStyle(color: Colors.greenAccent),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                      focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
+                      suffixIcon: Icon(Icons.access_time, color: Colors.greenAccent),
+                    ),
+                    onTap: () async {
+                      TimeOfDay? pickedTime = await showTimePicker(
+                        context: context,
+                        initialTime: selectedTime ?? TimeOfDay.now(),
+                        builder: (context, child) {
+                          return Theme(
+                            data: Theme.of(context).copyWith(
+                              colorScheme: const ColorScheme.dark(
+                                primary: Colors.greenAccent, 
+                                onPrimary: Colors.black, 
+                                onSurface: Colors.white, 
+                                surface: Color(0xFF3C2A21), 
+                              ),
+                            ),
+                            child: child!,
+                          );
+                        },
+                      );
+
+                      if (pickedTime != null) {
+                        setStateModal(() {
+                          selectedTime = pickedTime;
+                          String hourStr = pickedTime.hour.toString().padLeft(2, '0');
+                          String minuteStr = pickedTime.minute.toString().padLeft(2, '0');
+                          waktuController.text = "$hourStr:$minuteStr WIB";
+                        });
+                      }
+                    },
+                  ),
+
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.greenAccent,
+                        foregroundColor: Colors.black,
+                      ),
+                      onPressed: () async {
+                        if (namaAcaraController.text.isEmpty || tanggalController.text.isEmpty || waktuController.text.isEmpty) {
+                          showDialog(
+                            context: context,
+                            builder: (context) => AlertDialog(
+                              backgroundColor: const Color(0xFF3C2A21),
+                              title: const Text('Peringatan', style: TextStyle(color: Colors.redAccent)),
+                              content: const Text('Semua field harus diisi!', style: TextStyle(color: Colors.white)),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.of(context).pop(),
+                                  child: const Text('OK', style: TextStyle(color: Colors.greenAccent)),
+                                ),
+                              ],
+                            ),
+                          );
+                          return;
+                        }
+
+                        // VALIDASI KETAT: Cek apakah gabungan tanggal & waktu berada di masa lalu
+                        if (selectedDate != null && selectedTime != null) {
+                          DateTime targetDateTime = DateTime(
+                            selectedDate!.year,
+                            selectedDate!.month,
+                            selectedDate!.day,
+                            selectedTime!.hour,
+                            selectedTime!.minute,
+                          );
+
+                          if (targetDateTime.isBefore(DateTime.now())) {
+                            showDialog(
+                              context: context,
+                              builder: (context) => AlertDialog(
+                                backgroundColor: const Color(0xFF3C2A21),
+                                title: const Text('Peringatan', style: TextStyle(color: Colors.redAccent)),
+                                content: const Text(
+                                  'Tidak dapat memilih tanggal/waktu yang sudah lewat!',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.of(context).pop(),
+                                    child: const Text('OK', style: TextStyle(color: Colors.greenAccent)),
+                                  ),
+                                ],
+                              ),
+                            );
+                            return; // Hentikan proses update/simpan
+                          }
+                        }
+
+                        // Simpan atau Update ke Firebase
+                        if (documentSnapshot == null) {
+                          await FirebaseFirestore.instance.collection('acara_penting').add({
+                            'nama_acara': namaAcaraController.text,
+                            'tanggal': tanggalController.text,
+                            'waktu': waktuController.text,
+                          });
+                        } else {
+                          await FirebaseFirestore.instance.collection('acara_penting').doc(documentSnapshot.id).update({
+                            'nama_acara': namaAcaraController.text,
+                            'tanggal': tanggalController.text,
+                            'waktu': waktuController.text,
+                          });
+                        }
+                        if (context.mounted) Navigator.of(context).pop();
+                      },
+                      child: Text(documentSnapshot == null ? 'Simpan' : 'Update'),
+                    ),
+                  )
+                ],
+              ),
+            );
+          },
         );
       },
     );
@@ -106,7 +260,6 @@ class AcaraPentingScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.greenAccent),
       ),
-      // READ: Menampilkan data secara real-time dari Firestore
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('acara_penting').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
@@ -120,62 +273,83 @@ class AcaraPentingScreen extends StatelessWidget {
               itemCount: streamSnapshot.data!.docs.length,
               itemBuilder: (context, index) {
                 final DocumentSnapshot documentSnapshot = streamSnapshot.data!.docs[index];
+                
+                Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
+                String namaAcara = data['nama_acara'] ?? '';
+                String tanggal = data['tanggal'] ?? '';
+                String waktu = data.containsKey('waktu') && data['waktu'] != '' ? data['waktu'] : '-';
+
                 return Card(
                   color: Colors.black45,
                   margin: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                  child: ListTile(
-                    title: Text(documentSnapshot['nama_acara'], style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                    subtitle: Text(documentSnapshot['tanggal'], style: const TextStyle(color: Colors.white70)),
-                    trailing: SizedBox(
-                      width: 100,
-                      child: Row(
-                        children: [
-                          // Tombol EDIT
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.greenAccent),
-                            onPressed: () => _showForm(context, documentSnapshot),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Row(
+                      children: [
+                        const Padding(
+                          padding: EdgeInsets.all(8.0),
+                          child: Icon(Icons.event_note, color: Colors.greenAccent, size: 30),
+                        ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(namaAcara, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16)),
+                              const SizedBox(height: 4),
+                              Text('Tanggal: $tanggal', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                              Text('Waktu: $waktu', style: const TextStyle(color: Colors.white70, fontSize: 13)),
+                            ],
                           ),
-                          // Tombol DELETE
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.redAccent),
-                            onPressed: () async {
-                              // Konfirmasi sebelum menghapus
-                              bool confirm = await showDialog(
-                                context: context,
-                                builder: (context) => AlertDialog(
-                                  backgroundColor: const Color(0xFF3C2A21),
-                                  title: const Text('Hapus Acara?', style: TextStyle(color: Colors.white)),
-                                  actions: [
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(false),
-                                      child: const Text('Batal', style: TextStyle(color: Colors.greenAccent)),
-                                    ),
-                                    TextButton(
-                                      onPressed: () => Navigator.of(context).pop(true),
-                                      child: const Text('Hapus', style: TextStyle(color: Colors.redAccent)),
-                                    ),
-                                  ],
-                                ),
-                              ) ?? false;
+                        ),
+                        Column(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit, color: Colors.greenAccent),
+                              onPressed: () => _showForm(context, documentSnapshot),
+                              constraints: const BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                            ),
+                            const SizedBox(height: 8),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.redAccent),
+                              onPressed: () async {
+                                bool confirm = await showDialog(
+                                  context: context,
+                                  builder: (context) => AlertDialog(
+                                    backgroundColor: const Color(0xFF3C2A21),
+                                    title: const Text('Hapus Acara?', style: TextStyle(color: Colors.white)),
+                                    actions: [
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(false),
+                                        child: const Text('Batal', style: TextStyle(color: Colors.greenAccent)),
+                                      ),
+                                      TextButton(
+                                        onPressed: () => Navigator.of(context).pop(true),
+                                        child: const Text('Hapus', style: TextStyle(color: Colors.redAccent)),
+                                      ),
+                                    ],
+                                  ),
+                                ) ?? false;
 
-                              if (confirm) {
-                                await FirebaseFirestore.instance.collection('acara_penting').doc(documentSnapshot.id).delete();
-                              }
-                            },
-                          ),
-                        ],
-                      ),
+                                if (confirm) {
+                                  await FirebaseFirestore.instance.collection('acara_penting').doc(documentSnapshot.id).delete();
+                                }
+                              },
+                              constraints: const BoxConstraints(),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ],
+                        )
+                      ],
                     ),
                   ),
                 );
               },
             );
           }
-          // Loading indicator saat mengambil data
           return const Center(child: CircularProgressIndicator(color: Colors.greenAccent));
         },
       ),
-      // Tombol FAB untuk menambah data
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.greenAccent,
         onPressed: () => _showForm(context),
