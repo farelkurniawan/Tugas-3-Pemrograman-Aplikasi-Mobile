@@ -1,35 +1,41 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+/// Halaman CRUD acara penting pada koleksi Firestore `acara_penting`.
+/// Data dibaca real-time melalui [StreamBuilder].
 class AcaraPentingScreen extends StatelessWidget {
   const AcaraPentingScreen({super.key});
 
+  /// Membuka form tambah atau edit di dalam modal bottom sheet.
+  /// Snapshot null berarti Create; snapshot berisi berarti Update.
   void _showForm(BuildContext context, [DocumentSnapshot? documentSnapshot]) {
+    // Controller menyimpan nilai yang akan ditampilkan dan dikirim ke Firestore.
     final TextEditingController namaAcaraController = TextEditingController();
     final TextEditingController tanggalController = TextEditingController();
     final TextEditingController waktuController = TextEditingController();
 
-    // Variabel untuk menyimpan objek DateTime & TimeOfDay
+    // Dipakai sebagai nilai awal picker dan dasar validasi waktu.
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
 
-    // Jika mode EDIT, ambil data lama dan konversi ke objek DateTime agar validasinya akurat
+    // Mode Edit: muat data lama dan ubah kembali ke objek tanggal/waktu.
     if (documentSnapshot != null) {
       namaAcaraController.text = documentSnapshot['nama_acara'];
-      String tglStr = documentSnapshot['tanggal']; // Format: DD/MM/YYYY
+      String tglStr = documentSnapshot['tanggal'];
+      // Default ini menjaga dokumen lama tanpa field waktu tetap bisa dibuka.
       String wktStr = documentSnapshot.data().toString().contains('waktu') ? documentSnapshot['waktu'] : '00:00 WIB';
       
       tanggalController.text = tglStr;
       waktuController.text = wktStr;
 
       try {
-        // Parsing kembali tanggal string ke DateTime
+        // Parsing format tanggal DD/MM/YYYY menjadi komponen DateTime.
         List<String> partsTgl = tglStr.split('/');
         int day = int.parse(partsTgl[0]);
         int month = int.parse(partsTgl[1]);
         int year = int.parse(partsTgl[2]);
 
-        // Parsing waktu string ke TimeOfDay (format "HH:MM WIB")
+        // Hapus " WIB", lalu parsing jam dan menit menjadi TimeOfDay.
         String cleanTime = wktStr.replaceAll(' WIB', '');
         List<String> partsWkt = cleanTime.split(':');
         int hour = int.parse(partsWkt[0]);
@@ -38,17 +44,20 @@ class AcaraPentingScreen extends StatelessWidget {
         selectedDate = DateTime(year, month, day);
         selectedTime = TimeOfDay(hour: hour, minute: minute);
       } catch (e) {
-        // Fallback aman jika format lama berbeda
+        // Fallback jika format data lama tidak sesuai pola yang diharapkan.
         selectedDate = DateTime.now();
         selectedTime = TimeOfDay.now();
       }
     }
 
+    // Bottom sheet menampilkan form tanpa berpindah halaman.
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF3C2A21),
+      // Form naik mengikuti keyboard saat input aktif.
       isScrollControlled: true,
       builder: (BuildContext context) {
+        // StatefulBuilder cukup untuk memperbarui pilihan di dalam modal.
         return StatefulBuilder(
           builder: (BuildContext context, StateSetter setStateModal) {
             return Padding(
@@ -68,7 +77,6 @@ class AcaraPentingScreen extends StatelessWidget {
                   ),
                   const SizedBox(height: 15),
                   
-                  // Input Nama Acara
                   TextField(
                     controller: namaAcaraController,
                     style: const TextStyle(color: Colors.white),
@@ -80,7 +88,7 @@ class AcaraPentingScreen extends StatelessWidget {
                     ),
                   ),
                   
-                  // Input Tanggal
+                  // readOnly memaksa tanggal dipilih lewat date picker.
                   TextField(
                     controller: tanggalController,
                     style: const TextStyle(color: Colors.white),
@@ -96,9 +104,11 @@ class AcaraPentingScreen extends StatelessWidget {
                       DateTime? pickedDate = await showDatePicker(
                         context: context,
                         initialDate: selectedDate ?? DateTime.now(),
+                        // Acara lama tidak boleh dipilih dari kalender.
                         firstDate: DateTime.now(), 
                         lastDate: DateTime(2100),  
                         builder: (context, child) {
+                          // Tema picker disamakan dengan warna halaman.
                           return Theme(
                             data: Theme.of(context).copyWith(
                               colorScheme: const ColorScheme.dark(
@@ -122,7 +132,7 @@ class AcaraPentingScreen extends StatelessWidget {
                     },
                   ),
 
-                  // Input Waktu
+                  // readOnly membuat waktu hanya dipilih lewat time picker.
                   TextField(
                     controller: waktuController,
                     style: const TextStyle(color: Colors.white),
@@ -173,7 +183,9 @@ class AcaraPentingScreen extends StatelessWidget {
                         foregroundColor: Colors.black,
                       ),
                       onPressed: () async {
+                        // Validasi field wajib sebelum mengakses Firestore.
                         if (namaAcaraController.text.isEmpty || tanggalController.text.isEmpty || waktuController.text.isEmpty) {
+                          // AlertDialog membuat peringatan tetap terlihat di atas form.
                           showDialog(
                             context: context,
                             builder: (context) => AlertDialog(
@@ -191,7 +203,7 @@ class AcaraPentingScreen extends StatelessWidget {
                           return;
                         }
 
-                        // VALIDASI KETAT: Cek apakah gabungan tanggal & waktu berada di masa lalu
+                        // Cek gabungan tanggal dan waktu, termasuk jam lampau hari ini.
                         if (selectedDate != null && selectedTime != null) {
                           DateTime targetDateTime = DateTime(
                             selectedDate!.year,
@@ -201,6 +213,7 @@ class AcaraPentingScreen extends StatelessWidget {
                             selectedTime!.minute,
                           );
 
+                          // firstDate hanya memeriksa tanggal; isBefore juga memeriksa jam.
                           if (targetDateTime.isBefore(DateTime.now())) {
                             showDialog(
                               context: context,
@@ -219,11 +232,11 @@ class AcaraPentingScreen extends StatelessWidget {
                                 ],
                               ),
                             );
-                            return; // Hentikan proses update/simpan
+                            return;
                           }
                         }
 
-                        // Simpan atau Update ke Firebase
+                        // Create: add membuat dokumen baru dengan ID otomatis.
                         if (documentSnapshot == null) {
                           await FirebaseFirestore.instance.collection('acara_penting').add({
                             'nama_acara': namaAcaraController.text,
@@ -231,12 +244,14 @@ class AcaraPentingScreen extends StatelessWidget {
                             'waktu': waktuController.text,
                           });
                         } else {
+                          // Update: ID snapshot menunjuk dokumen yang diedit.
                           await FirebaseFirestore.instance.collection('acara_penting').doc(documentSnapshot.id).update({
                             'nama_acara': namaAcaraController.text,
                             'tanggal': tanggalController.text,
                             'waktu': waktuController.text,
                           });
                         }
+                        // Tutup modal setelah operasi Firestore selesai.
                         if (context.mounted) Navigator.of(context).pop();
                       },
                       child: Text(documentSnapshot == null ? 'Simpan' : 'Update'),
@@ -260,6 +275,7 @@ class AcaraPentingScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Colors.greenAccent),
       ),
+      // snapshots() mengirim ulang data saat dokumen ditambah, diubah, atau dihapus.
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('acara_penting').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
@@ -272,6 +288,7 @@ class AcaraPentingScreen extends StatelessWidget {
             return ListView.builder(
               itemCount: streamSnapshot.data!.docs.length,
               itemBuilder: (context, index) {
+                // Snapshot dipakai untuk menampilkan data dan mengambil ID CRUD.
                 final DocumentSnapshot documentSnapshot = streamSnapshot.data!.docs[index];
                 
                 Map<String, dynamic> data = documentSnapshot.data() as Map<String, dynamic>;
@@ -332,6 +349,7 @@ class AcaraPentingScreen extends StatelessWidget {
                                 ) ?? false;
 
                                 if (confirm) {
+                                  // Delete berdasarkan ID dokumen yang dikonfirmasi.
                                   await FirebaseFirestore.instance.collection('acara_penting').doc(documentSnapshot.id).delete();
                                 }
                               },
