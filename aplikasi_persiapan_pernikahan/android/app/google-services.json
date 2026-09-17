@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "801688103491",
+    "project_id": "tugas-app-pernikahan",
+    "storage_bucket": "tugas-app-pernikahan.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:801688103491:android:c853c04047715cd3d202f6",
+        "android_client_info": {
+          "package_name": "com.example.aplikasi_persiapan_pernikahan"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAonh03_vp7U_fDqeSdQ6usGrKARUA7bdI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

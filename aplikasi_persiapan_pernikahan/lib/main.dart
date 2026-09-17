@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_core/firebase_core.dart'; // Tambahan 1: Import Firebase Core
+import 'firebase_options.dart'; // Tambahan 2: Import file hasil generate FlutterFire
 import 'login_page.dart';
 import 'main_screen.dart';
 
-void main() {
+// Tambahan 3: Ubah main() menjadi asynchronous
+void main() async {
+  // Tambahan 4: Pastikan engine Flutter siap sebelum Firebase diinisialisasi
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  // Tambahan 5: Inisialisasi Firebase berdasarkan platform (Android/iOS)
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   runApp(const PersiapanNikahApp());
 }
 
