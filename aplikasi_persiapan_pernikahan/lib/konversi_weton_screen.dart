@@ -19,7 +19,7 @@ class WetonConverter {
     'Kliwon'
   ];
 
-  // Neptu (nilai) hari dalam hitungan Jawa
+  // Neptu (nilai)  masehi dalam hitungan Jawa
   static const Map<String, int> neptuHari = {
     'Senin': 4,
     'Selasa': 3,
@@ -30,7 +30,7 @@ class WetonConverter {
     'Minggu': 5,
   };
 
-  // Neptu pasaran
+  // Neptu pasaran dalam perhitungan kalender jawa
   static const Map<String, int> neptuPasaran = {
     'Legi': 5,
     'Pahing': 9,
