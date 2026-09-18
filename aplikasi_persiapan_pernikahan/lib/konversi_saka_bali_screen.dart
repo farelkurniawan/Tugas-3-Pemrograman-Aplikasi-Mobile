@@ -116,16 +116,12 @@ class _KonversiSakaBaliScreenState extends State<KonversiSakaBaliScreen> {
     return aDate.difference(bDate).inDays;
   }
 
-  // Saptawara:
-  // Minggu = Redite, Senin = Coma, dst.
+  
   String hitungSaptawara(DateTime tanggal) {
     return saptawara[tanggal.weekday % 7];
   }
 
-  // Pancawara.
-  //
-  // Acuan:
-  // 22 Maret 2026 = Pon.
+  
   // Siklus Pancawara berulang setiap 5 hari.
   String hitungPancawara(DateTime tanggal) {
     final DateTime acuan = DateTime(2026, 3, 22);
@@ -141,10 +137,7 @@ class _KonversiSakaBaliScreenState extends State<KonversiSakaBaliScreen> {
   }
 
   // Wuku mempunyai siklus 210 hari.
-  //
-  // Acuan:
-  // 22 Maret 2026 = Redite Pon Dukut.
-  // Dukut adalah Wuku ke-29.
+  
   String hitungWuku(DateTime tanggal) {
     final DateTime acuan = DateTime(2026, 3, 22);
     final int selisih = selisihHari(tanggal, acuan);
@@ -163,10 +156,7 @@ class _KonversiSakaBaliScreenState extends State<KonversiSakaBaliScreen> {
   }
 
   // Tahun Saka.
-  //
-  // Tahun Saka berganti pada sekitar Nyepi.
-  // Untuk kebutuhan tampilan aplikasi, batas digunakan
-  // berdasarkan tanggal Nyepi pada tahun yang diproses.
+ 
   int hitungSaka(DateTime tanggal) {
     int tahunSaka = tanggal.year - 78;
 
@@ -192,22 +182,9 @@ class _KonversiSakaBaliScreenState extends State<KonversiSakaBaliScreen> {
     return tahunSaka;
   }
 
-  // Sasih.
-  //
-  // Bagian ini menggunakan pembagian posisi tahunan
-  // berdasarkan pergantian Sasih modern.
-  //
-  // Catatan:
-  // Kalender Saka Bali sebenarnya bersifat luni-solar,
-  // sehingga Sasih tidak bisa disamakan secara sederhana
-  // dengan bulan Gregorian.
+  
   String hitungSasih(DateTime tanggal) {
-    // Acuan modern untuk tahun 2026:
-    // 19 Maret 2026 = Nyepi / awal Saka 1948.
-    //
-    // Posisi Sasih setelah Nyepi:
-    // Kadasa -> Jyesta -> Sada -> Kasa -> dst.
-
+    
     final DateTime acuan = DateTime(2026, 3, 19);
     final int selisih = selisihHari(tanggal, acuan);
 
