@@ -133,7 +133,7 @@ class _KonversiHijriahScreenState
         ),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(
-          color: Colors.greenAccent,
+          color: Color(0xFFD5CEA3),
         ),
       ),
 
@@ -179,7 +179,7 @@ class _KonversiHijriahScreenState
 
                   const Icon(
                     Icons.calendar_month,
-                    color: Colors.greenAccent,
+                    color: Color(0xFFD5CEA3),
                     size: 50,
                   ),
 
@@ -211,7 +211,7 @@ class _KonversiHijriahScreenState
                     icon: const Icon(Icons.date_range),
                     label: const Text('Pilih Tanggal'),
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.greenAccent,
+                      backgroundColor: Color(0xFFD5CEA3),
                       foregroundColor: Colors.black,
                       padding: const EdgeInsets.symmetric(
                         horizontal: 25,
@@ -232,7 +232,7 @@ class _KonversiHijriahScreenState
             // Icon konversi
             const Icon(
               Icons.arrow_downward,
-              color: Colors.greenAccent,
+              color: Color(0xFFD5CEA3),
               size: 35,
             ),
 
@@ -245,7 +245,7 @@ class _KonversiHijriahScreenState
                 color: Colors.black,
                 borderRadius: BorderRadius.circular(20),
                 border: Border.all(
-                  color: Colors.greenAccent,
+                  color: Color(0xFFD5CEA3),
                   width: 1.5,
                 ),
               ),
@@ -255,7 +255,7 @@ class _KonversiHijriahScreenState
                   const Text(
                     'Tanggal Hijriah',
                     style: TextStyle(
-                      color: Colors.greenAccent,
+                      color: Color(0xFFD5CEA3),
                       fontSize: 17,
                     ),
                   ),

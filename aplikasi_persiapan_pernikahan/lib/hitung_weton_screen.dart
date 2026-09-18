@@ -163,7 +163,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
       appBar: AppBar(
         title: const Text('Hitung Kecocokan Weton', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Color(0xFF3C2A21)),
+        iconTheme: const IconThemeData(color: Color(0xFFD5CEA3)),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20.0),
