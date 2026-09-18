@@ -72,7 +72,7 @@ class _KonversiUmurScreenState extends State<KonversiUmurScreen> {
         ),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(
-          color: Colors.greenAccent,
+          color: Color(0xFFD5CEA3),
         ),
       ),
       body: Padding(
@@ -110,7 +110,7 @@ class _KonversiUmurScreenState extends State<KonversiUmurScreen> {
                 ),
                 trailing: const Icon(
                   Icons.calendar_month,
-                  color: Colors.greenAccent,
+                  color: Color(0xFFD5CEA3),
                 ),
                 onTap: pilihTanggalLahir,
               ),

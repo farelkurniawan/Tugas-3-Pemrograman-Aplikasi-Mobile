@@ -41,7 +41,7 @@ class BerandaScreen extends StatelessWidget {
                     textAlign: TextAlign.center,
                     style: GoogleFonts.philosopher(
                       color: const Color(0xFFD5CEA3),
-                      fontSize: 32, // Ukurannya dibesarkan sedikit agar lebih menonjol
+                      fontSize: 32, 
                       fontWeight: FontWeight.bold,
                     ),
                   ),

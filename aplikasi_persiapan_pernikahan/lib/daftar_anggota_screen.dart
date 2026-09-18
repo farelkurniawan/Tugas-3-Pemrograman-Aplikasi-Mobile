@@ -14,7 +14,7 @@ class DaftarAnggotaScreen extends StatelessWidget {
         ),
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(
-          color: Colors.greenAccent,
+          color: Color(0xFFD5CEA3),
         ),
       ),
       body: ListView(
