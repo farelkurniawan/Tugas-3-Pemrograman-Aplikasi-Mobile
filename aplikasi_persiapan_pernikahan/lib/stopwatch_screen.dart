@@ -1,4 +1,4 @@
-import 'dart:async';
+import 'dart:async'; //untuk timer
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -15,10 +15,11 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
   final List<String> _laps = [];
   bool _isStopped = false; 
 
+// Mengubah ribuan milidetik menjadi format Menit:Detik.Milidetik
   String _formatTime(int milliseconds) {
-    int hundreds = (milliseconds / 10).truncate();
-    int seconds = (hundreds / 100).truncate();
-    int minutes = (seconds / 60).truncate();
+    int hundreds = (milliseconds / 10).truncate(); //1 detik = 1000 milidetik, 1/100 detik adl 10 milidetik
+    int seconds = (hundreds / 100).truncate(); //1/100 detik
+    int minutes = (seconds / 60).truncate(); //60 detik
 
     String minutesStr = (minutes % 60).toString().padLeft(2, '0');
     String secondsStr = (seconds % 60).toString().padLeft(2, '0');
@@ -29,7 +30,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
 
   // Fungsi Play
   void _startStopwatch() {
-    if (_isStopped) return; 
+    if (_isStopped) return; // Kalau sudah di-Stop merah, tolak perintah Play
     
     setState(() {
       _stopwatch.start();
@@ -52,7 +53,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
       _stopwatch.stop();
       _isStopped = true; // Mengunci stopwatch agar tidak bisa di-play lagi sebelum reset
       
-      // (Opsional) Otomatis mencatat waktu terakhir saat ditekan Stop
+      // Otomatis mencatat waktu terakhir saat ditekan Stop
       if (_stopwatch.elapsedMilliseconds > 0) {
         _laps.insert(0, "Waktu Final: ${_formatTime(_stopwatch.elapsedMilliseconds)}");
       }
