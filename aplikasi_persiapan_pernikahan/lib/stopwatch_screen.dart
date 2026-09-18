@@ -18,7 +18,7 @@ class _StopwatchScreenState extends State<StopwatchScreen> {
 // Mengubah ribuan milidetik menjadi format Menit:Detik.Milidetik
   String _formatTime(int milliseconds) {
     int hundreds = (milliseconds / 10).truncate(); //1 detik = 1000 milidetik, 1/100 detik adl 10 milidetik
-    int seconds = (hundreds / 100).truncate(); //1/100 detik
+    int seconds = (hundreds / 100).truncate(); 
     int minutes = (seconds / 60).truncate(); //60 detik
 
     String minutesStr = (minutes % 60).toString().padLeft(2, '0');
