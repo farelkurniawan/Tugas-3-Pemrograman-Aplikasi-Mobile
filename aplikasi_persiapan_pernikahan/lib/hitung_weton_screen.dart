@@ -118,7 +118,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
             hintStyle: const TextStyle(color: Colors.white38),
             filled: true,
             fillColor: Colors.black45,
-            suffixIcon: const Icon(Icons.calendar_month, color: Color(0xFF3C2A21)),
+            suffixIcon: const Icon(Icons.calendar_month, color: Color(0xFFD5CEA3)), 
             enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Color(0xFF3C2A21))),
             focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(8), borderSide: const BorderSide(color: Colors.white)),
           ),
@@ -133,6 +133,11 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
                   data: Theme.of(context).copyWith(
                     colorScheme: const ColorScheme.dark(
                       primary: Color(0xFF3C2A21), onPrimary: Colors.white, onSurface: Colors.white, surface: Color(0xFF1E1511),
+                    ),
+                    textButtonTheme: TextButtonThemeData( 
+                      style: TextButton.styleFrom(
+                        foregroundColor: const Color(0xFFD5CEA3),
+                      ),
                     ),
                   ),
                   child: child!,

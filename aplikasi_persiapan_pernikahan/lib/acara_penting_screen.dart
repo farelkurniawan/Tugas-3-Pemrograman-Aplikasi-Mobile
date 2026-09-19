@@ -82,8 +82,8 @@ class AcaraPentingScreen extends StatelessWidget {
                     style: const TextStyle(color: Colors.white),
                     decoration: const InputDecoration(
                       labelText: 'Nama Acara',
-                      labelStyle: TextStyle(color: Colors.greenAccent),
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                      labelStyle: TextStyle(color: Color(0xFFD5CEA3)),  
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFD5CEA3))),
                       focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                     ),
                   ),
@@ -95,10 +95,10 @@ class AcaraPentingScreen extends StatelessWidget {
                     readOnly: true, 
                     decoration: const InputDecoration(
                       labelText: 'Tanggal',
-                      labelStyle: TextStyle(color: Colors.greenAccent),
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                      labelStyle: TextStyle(color: Color(0xFFD5CEA3)),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFD5CEA3))),
                       focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                      suffixIcon: Icon(Icons.calendar_today, color: Colors.greenAccent),
+                      suffixIcon: Icon(Icons.calendar_today, color: Color(0xFFD5CEA3)),
                     ),
                     onTap: () async {
                       DateTime? pickedDate = await showDatePicker(
@@ -112,7 +112,7 @@ class AcaraPentingScreen extends StatelessWidget {
                           return Theme(
                             data: Theme.of(context).copyWith(
                               colorScheme: const ColorScheme.dark(
-                                primary: Colors.greenAccent, 
+                                primary: Color(0xFFD5CEA3), 
                                 onPrimary: Colors.black, 
                                 onSurface: Colors.white, 
                                 surface: Color(0xFF3C2A21), 
@@ -139,10 +139,10 @@ class AcaraPentingScreen extends StatelessWidget {
                     readOnly: true, 
                     decoration: const InputDecoration(
                       labelText: 'Waktu',
-                      labelStyle: TextStyle(color: Colors.greenAccent),
-                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.greenAccent)),
+                      labelStyle: TextStyle(color: Color(0xFFD5CEA3)),
+                      enabledBorder: UnderlineInputBorder(borderSide: BorderSide(color: Color(0xFFD5CEA3))),
                       focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
-                      suffixIcon: Icon(Icons.access_time, color: Colors.greenAccent),
+                      suffixIcon: Icon(Icons.access_time, color: Color(0xFFD5CEA3)),
                     ),
                     onTap: () async {
                       TimeOfDay? pickedTime = await showTimePicker(
@@ -152,7 +152,7 @@ class AcaraPentingScreen extends StatelessWidget {
                           return Theme(
                             data: Theme.of(context).copyWith(
                               colorScheme: const ColorScheme.dark(
-                                primary: Colors.greenAccent, 
+                                primary: Color(0xFFD5CEA3), 
                                 onPrimary: Colors.black, 
                                 onSurface: Colors.white, 
                                 surface: Color(0xFF3C2A21), 
@@ -179,7 +179,7 @@ class AcaraPentingScreen extends StatelessWidget {
                     width: double.infinity,
                     child: ElevatedButton(
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.greenAccent,
+                        backgroundColor: Color(0xFFD5CEA3),
                         foregroundColor: Colors.black,
                       ),
                       onPressed: () async {
@@ -195,7 +195,7 @@ class AcaraPentingScreen extends StatelessWidget {
                               actions: [
                                 TextButton(
                                   onPressed: () => Navigator.of(context).pop(),
-                                  child: const Text('OK', style: TextStyle(color: Colors.greenAccent)),
+                                  child: const Text('OK', style: TextStyle(color: Color(0xFFD5CEA3))),
                                 ),
                               ],
                             ),
@@ -227,7 +227,7 @@ class AcaraPentingScreen extends StatelessWidget {
                                 actions: [
                                   TextButton(
                                     onPressed: () => Navigator.of(context).pop(),
-                                    child: const Text('OK', style: TextStyle(color: Colors.greenAccent)),
+                                    child: const Text('OK', style: TextStyle(color: Color(0xFFD5CEA3))),
                                   ),
                                 ],
                               ),
@@ -273,7 +273,7 @@ class AcaraPentingScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text('Acara Penting', style: TextStyle(color: Colors.white)),
         backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(color: Colors.greenAccent),
+        iconTheme: const IconThemeData(color: Color(0xFFD5CEA3)),
       ),
       // snapshots() mengirim ulang data saat dokumen ditambah, diubah, atau dihapus.
       body: StreamBuilder(
@@ -305,7 +305,7 @@ class AcaraPentingScreen extends StatelessWidget {
                       children: [
                         const Padding(
                           padding: EdgeInsets.all(8.0),
-                          child: Icon(Icons.event_note, color: Colors.greenAccent, size: 30),
+                          child: Icon(Icons.event_note, color: Color(0xFFD5CEA3), size: 30),
                         ),
                         Expanded(
                           child: Column(
@@ -321,7 +321,7 @@ class AcaraPentingScreen extends StatelessWidget {
                         Column(
                           children: [
                             IconButton(
-                              icon: const Icon(Icons.edit, color: Colors.greenAccent),
+                              icon: const Icon(Icons.edit, color: Color(0xFFD5CEA3)),
                               onPressed: () => _showForm(context, documentSnapshot),
                               constraints: const BoxConstraints(),
                               padding: EdgeInsets.zero,
@@ -338,7 +338,7 @@ class AcaraPentingScreen extends StatelessWidget {
                                     actions: [
                                       TextButton(
                                         onPressed: () => Navigator.of(context).pop(false),
-                                        child: const Text('Batal', style: TextStyle(color: Colors.greenAccent)),
+                                        child: const Text('Batal', style: TextStyle(color: Color(0xFFD5CEA3))),
                                       ),
                                       TextButton(
                                         onPressed: () => Navigator.of(context).pop(true),
@@ -365,11 +365,11 @@ class AcaraPentingScreen extends StatelessWidget {
               },
             );
           }
-          return const Center(child: CircularProgressIndicator(color: Colors.greenAccent));
+          return const Center(child: CircularProgressIndicator(color: Color(0xFFD5CEA3)));
         },
       ),
       floatingActionButton: FloatingActionButton(
-        backgroundColor: Colors.greenAccent,
+        backgroundColor: Color(0xFFD5CEA3),
         onPressed: () => _showForm(context),
         child: const Icon(Icons.add, color: Colors.black),
       ),

@@ -56,7 +56,7 @@ class BantuanScreen extends StatelessWidget {
               child: ListView(
                 children: [
                   _buildHelpItem(
-                      '1. Halaman Utama', 'Berisi 7 menu utama sesuai dengan kriteria tugas.'),
+                      '1. Halaman Utama', 'Berisi 7 menu utama'),
                   _buildHelpItem(
                       '2. Fitur Stopwatch', 'Gunakan menu tab di bawah (tengah) untuk membuka fitur Stopwatch.'),
                   _buildHelpItem(
