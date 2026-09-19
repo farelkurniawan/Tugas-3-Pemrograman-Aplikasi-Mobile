@@ -15,7 +15,7 @@ class _KonversiUmurScreenState extends State<KonversiUmurScreen> {
     final DateTime? tanggal = await showDatePicker(
       context: context,
       initialDate: DateTime(2000),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(100),
       lastDate: DateTime.now(),
     );
 

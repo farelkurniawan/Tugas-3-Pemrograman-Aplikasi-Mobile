@@ -92,7 +92,7 @@ class _KonversiWetonScreenState extends State<KonversiWetonScreen> {
     final DateTime? tanggal = await showDatePicker(
       context: context,
       initialDate: tanggalMasehi,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(100),
       lastDate: DateTime(2100),
     );
 

@@ -91,7 +91,7 @@ class _KonversiSakaBaliScreenState extends State<KonversiSakaBaliScreen> {
     final DateTime? tanggal = await showDatePicker(
       context: context,
       initialDate: tanggalDipilih ?? DateTime.now(),
-      firstDate: DateTime(1900),
+      firstDate: DateTime(100),
       lastDate: DateTime(2100),
     );
 

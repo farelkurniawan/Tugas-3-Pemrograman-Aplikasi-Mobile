@@ -125,8 +125,8 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
           onTap: () async {
             DateTime? pickedDate = await showDatePicker(
               context: context,
-              initialDate: DateTime(2000),
-              firstDate: DateTime(1950),
+              initialDate: DateTime(2026),
+              firstDate: DateTime(1),
               lastDate: DateTime.now(),
               builder: (context, child) {
                 return Theme(

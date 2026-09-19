@@ -29,14 +29,20 @@ class HijriConverter {
     int m = month + 12 * a - 3;
 
     int jdn = day +
-        ((153 * m + 2) ~/ 5) +
+      // Rumus matematika unik untuk menghitung selisih jumlah hari antar bulan Masehi
+      // yang tidak rata (ada yang 30 dan 31 hari).
+      // Dalam satu tahun ada 365 hari
+        ((153 * m + 2) ~/ 5) + 
         365 * y +
+      // Perhitungan tahun kabisat dimana kabisat kan cuma 4 tahun sekali.
         (y ~/ 4) -
         (y ~/ 100) +
         (y ~/ 400) -
-        32045;
+        32045; //angka penyeimbang dari kalender julian
 
     // Konversi JDN ke Hijriah
+    // 1948440 adalah kalender julian dimulainya 1 hijriah/16 Juli 622 M
+    // 10631 adalah total hari dalam kalender hijriah (30 tahun)
     int l = jdn - 1948440 + 10632;
     int n = ((l - 1) ~/ 10631);
     l = l - 10631 * n + 354;
@@ -87,7 +93,7 @@ class _KonversiHijriahScreenState
     final DateTime? tanggal = await showDatePicker(
       context: context,
       initialDate: tanggalMasehi,
-      firstDate: DateTime(1900),
+      firstDate: DateTime(100),
       lastDate: DateTime(2100),
     );
 
