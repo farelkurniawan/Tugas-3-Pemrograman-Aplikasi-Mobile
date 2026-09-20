@@ -1,78 +1,5 @@
 import 'package:flutter/material.dart';
-
-class HijriConverter {
-  static const List<String> namaBulanHijriah = [
-    'Muharram',
-    'Safar',
-    'Rabiul Awal',
-    'Rabiul Akhir',
-    'Jumadil Awal',
-    'Jumadil Akhir',
-    'Rajab',
-    "Sya'ban",
-    'Ramadhan',
-    'Syawal',
-    "Dzulqa'dah",
-    'Dzulhijjah'
-  ];
-
-  /// Konversi tanggal Masehi (Gregorian) ke Hijriah
-  /// Menggunakan algoritma Kuwaiti Algorithm
-  static Map<String, dynamic> masehiKeHijriah(DateTime tanggal) {
-    int day = tanggal.day;
-    int month = tanggal.month;
-    int year = tanggal.year;
-
-    // Konversi ke Julian Day Number (JDN)
-    int a = (14 - month) ~/ 12;
-    int y = year + 4800 - a;
-    int m = month + 12 * a - 3;
-
-    int jdn = day +
-      // Rumus matematika unik untuk menghitung selisih jumlah hari antar bulan Masehi
-      // yang tidak rata (ada yang 30 dan 31 hari).
-      // Dalam satu tahun ada 365 hari
-        ((153 * m + 2) ~/ 5) + 
-        365 * y +
-      // Perhitungan tahun kabisat dimana kabisat kan cuma 4 tahun sekali.
-        (y ~/ 4) -
-        (y ~/ 100) +
-        (y ~/ 400) -
-        32045; //angka penyeimbang dari kalender julian
-
-    // Konversi JDN ke Hijriah
-    // 1948440 adalah kalender julian dimulainya 1 hijriah/16 Juli 622 M
-    // 10631 adalah total hari dalam kalender hijriah (30 tahun)
-    int l = jdn - 1948440 + 10632;
-    int n = ((l - 1) ~/ 10631);
-    l = l - 10631 * n + 354;
-
-    int j = (((10985 - l) ~/ 5316)) *
-            ((50 * l) ~/ 17719) +
-        ((l ~/ 5670)) *
-            ((43 * l) ~/ 15238);
-
-    l = l -
-        (((30 - j) ~/ 15)) *
-            (((17719 * j) ~/ 50)) -
-        ((j ~/ 16)) *
-            (((15238 * j) ~/ 43)) +
-        29;
-
-    int hijriMonth = ((24 * l) ~/ 709);
-    int hijriDay = l - ((709 * hijriMonth) ~/ 24);
-    int hijriYear = 30 * n + j - 30;
-
-    return {
-      'hari': hijriDay,
-      'bulan': hijriMonth,
-      'namaBulan': namaBulanHijriah[hijriMonth - 1],
-      'tahun': hijriYear,
-      'formatted':
-          '$hijriDay ${namaBulanHijriah[hijriMonth - 1]} $hijriYear H',
-    };
-  }
-}
+import 'package:hijri_date/hijri.dart';
 
 class KonversiHijriahScreen extends StatefulWidget {
   const KonversiHijriahScreen({super.key});
@@ -82,32 +9,73 @@ class KonversiHijriahScreen extends StatefulWidget {
       _KonversiHijriahScreenState();
 }
 
-class _KonversiHijriahScreenState
-    extends State<KonversiHijriahScreen> {
-  DateTime tanggalMasehi = DateTime.now();
+class _KonversiHijriahScreenState extends State<KonversiHijriahScreen> {
+  DateTime? _selectedDate;
+  String hijriResult = '';
 
-  Map<String, dynamic> hasilHijriah =
-      HijriConverter.masehiKeHijriah(DateTime.now());
+  final List<String> _hariIndonesia = [
+    'Senin',
+    'Selasa',
+    'Rabu',
+    'Kamis',
+    "Jum'at",
+    'Sabtu',
+    'Minggu',
+  ];
 
-  Future<void> pilihTanggal() async {
-    final DateTime? tanggal = await showDatePicker(
-      context: context,
-      initialDate: tanggalMasehi,
-      firstDate: DateTime(100),
-      lastDate: DateTime(2100),
-    );
+  final List<String> _hijriMonths = [
+    'Muharram',
+    'Safar',
+    'Rabiul Awal',
+    'Rabiul Akhir',
+    'Jumadil Awal',
+    'Jumadil Akhir',
+    'Rajab',
+    'Sya’ban',
+    'Ramadan',
+    'Syawal',
+    'Zulkaidah',
+    'Zulhijah',
+  ];
 
-    if (tanggal != null) {
-      setState(() {
-        tanggalMasehi = tanggal;
-        hasilHijriah =
-            HijriConverter.masehiKeHijriah(tanggal);
-      });
+  void _prosesKonversiHijriah() {
+    if (_selectedDate == null) {
+      return;
     }
+
+    final tanggalHijriah = HijriDate.fromDate(_selectedDate!);
+
+    final hari = _hariIndonesia[_selectedDate!.weekday - 1];
+    final bulan = _hijriMonths[tanggalHijriah.hMonth - 1];
+
+    final hasil =
+        '$hari, ${tanggalHijriah.hDay} $bulan ${tanggalHijriah.hYear} H';
+
+    setState(() {
+      hijriResult = hasil;
+    });
   }
 
-  String formatTanggalMasehi(DateTime tanggal) {
-    const bulan = [
+  Future<void> _pilihTanggal() async {
+    final tanggal = await showDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? DateTime.now(),
+      firstDate: DateTime(1937),
+      lastDate: DateTime(2077),
+    );
+
+    if (tanggal == null) {
+      return;
+    }
+
+    setState(() {
+      _selectedDate = tanggal;
+      hijriResult = '';
+    });
+  }
+
+  String _formatTanggal(DateTime tanggal) {
+    final bulan = [
       'Januari',
       'Februari',
       'Maret',
@@ -128,180 +96,208 @@ class _KonversiHijriahScreenState
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF3C2A21),
-
+      backgroundColor: const Color(0xFF21140D),
       appBar: AppBar(
+        backgroundColor: Colors.black,
+        foregroundColor: Colors.white,
+        elevation: 0,
         title: const Text(
           'Konversi Hijriah',
           style: TextStyle(
-            color: Colors.white,
+            fontSize: 13,
           ),
         ),
-        backgroundColor: Colors.black,
-        iconTheme: const IconThemeData(
-          color: Color(0xFFD5CEA3),
-        ),
       ),
-
       body: SingleChildScrollView(
-        padding: const EdgeInsets.all(20),
+        padding: const EdgeInsets.all(14),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-
-            // Judul
-            const Text(
-              'Kalender Hijriah',
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 28,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-
-            const SizedBox(height: 8),
-
             const Text(
               'Konversi tanggal Masehi ke tanggal Hijriah',
-              textAlign: TextAlign.center,
               style: TextStyle(
-                color: Colors.white70,
-                fontSize: 15,
+                color: Color(0xFFC9B98B),
+                fontSize: 10,
               ),
             ),
 
-            const SizedBox(height: 30),
+            const SizedBox(height: 12),
 
-            // Card tanggal Masehi
             Container(
-              padding: const EdgeInsets.all(20),
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
               decoration: BoxDecoration(
-                color: const Color(0xFF5A4032),
-                borderRadius: BorderRadius.circular(20),
+                color: const Color(0xFF604534),
+                borderRadius: BorderRadius.circular(10),
               ),
               child: Column(
                 children: [
-
                   const Icon(
                     Icons.calendar_month,
-                    color: Color(0xFFD5CEA3),
-                    size: 50,
+                    color: Color(0xFFD6C78F),
+                    size: 28,
                   ),
 
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 8),
 
                   const Text(
                     'Tanggal Masehi',
                     style: TextStyle(
-                      color: Colors.white70,
-                      fontSize: 16,
+                      color: Color(0xFFD0C0A5),
+                      fontSize: 8,
+                    ),
+                  ),
+
+                  const SizedBox(height: 5),
+
+                  Text(
+                    _selectedDate == null
+                        ? _formatTanggal(DateTime.now())
+                        : _formatTanggal(_selectedDate!),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+
+                  const SizedBox(height: 10),
+
+                  ElevatedButton.icon(
+                    onPressed: _pilihTanggal,
+                    icon: const Icon(
+                      Icons.calendar_today,
+                      size: 10,
+                    ),
+                    label: const Text(
+                      'Pilih Tanggal',
+                      style: TextStyle(
+                        fontSize: 8,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD8D19C),
+                      foregroundColor: const Color(0xFF4B3B25),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 7,
+                      ),
+                      minimumSize: Size.zero,
+                      tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 10),
+
+            const Icon(
+              Icons.arrow_downward,
+              color: Color(0xFFD1C58F),
+              size: 22,
+            ),
+
+            const SizedBox(height: 8),
+
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.fromLTRB(
+                16,
+                15,
+                16,
+                18,
+              ),
+              decoration: BoxDecoration(
+                color: Colors.black,
+                border: Border.all(
+                  color: const Color(0xFFC8B979),
+                  width: 1,
+                ),
+                borderRadius: BorderRadius.circular(9),
+              ),
+              child: Column(
+                children: [
+                  const Text(
+                    'Tanggal Hijriah',
+                    style: TextStyle(
+                      color: Color(0xFFD0C0A5),
+                      fontSize: 8,
                     ),
                   ),
 
                   const SizedBox(height: 8),
 
-                  Text(
-                    formatTanggalMasehi(tanggalMasehi),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 23,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  ElevatedButton.icon(
-                    onPressed: pilihTanggal,
-                    icon: const Icon(Icons.date_range),
-                    label: const Text('Pilih Tanggal'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFD5CEA3),
-                      foregroundColor: Colors.black,
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 25,
-                        vertical: 13,
+                  if (hijriResult.isEmpty)
+                    const Text(
+                      '-',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
                       ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius:
-                            BorderRadius.circular(12),
+                    )
+                  else
+                    Text(
+                      hijriResult,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 13,
+                        fontWeight: FontWeight.bold,
                       ),
+                      textAlign: TextAlign.center,
                     ),
-                  ),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // Icon konversi
-            const Icon(
-              Icons.arrow_downward,
-              color: Color(0xFFD5CEA3),
-              size: 35,
-            ),
-
-            const SizedBox(height: 15),
-
-            // Hasil Hijriah
-            Container(
-              padding: const EdgeInsets.all(25),
-              decoration: BoxDecoration(
-                color: Colors.black,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
-                  color: Color(0xFFD5CEA3),
-                  width: 1.5,
-                ),
-              ),
-              child: Column(
-                children: [
-
-                  const Text(
-                    'Tanggal Hijriah',
-                    style: TextStyle(
-                      color: Color(0xFFD5CEA3),
-                      fontSize: 17,
-                    ),
-                  ),
 
                   const SizedBox(height: 15),
 
-                  Text(
-                    hasilHijriah['formatted'],
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.bold,
+                  if (hijriResult.isNotEmpty)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        _infoHijriah(
+                          'Hari',
+                          _hariIndonesia[_selectedDate!.weekday - 1],
+                        ),
+                        _infoHijriah(
+                          'Bulan',
+                          _hijriMonths[
+                              HijriDate.fromDate(_selectedDate!).hMonth - 1],
+                        ),
+                        _infoHijriah(
+                          'Tahun',
+                          '${HijriDate.fromDate(_selectedDate!).hYear} H',
+                        ),
+                      ],
                     ),
-                  ),
-
-                  const SizedBox(height: 20),
-
-                  Row(
-                    mainAxisAlignment:
-                        MainAxisAlignment.spaceEvenly,
-                    children: [
-
-                      _infoHijriah(
-                        'Hari',
-                        '${hasilHijriah['hari']}',
-                      ),
-
-                      _infoHijriah(
-                        'Bulan',
-                        hasilHijriah['namaBulan'],
-                      ),
-
-                      _infoHijriah(
-                        'Tahun',
-                        '${hasilHijriah['tahun']} H',
-                      ),
-                    ],
-                  ),
                 ],
+              ),
+            ),
+
+            const SizedBox(height: 12),
+
+            ElevatedButton(
+              onPressed: _prosesKonversiHijriah,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFD8D19C),
+                foregroundColor: const Color(0xFF4B3B25),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 9,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+              ),
+              child: const Text(
+                'Konversi ke Hijriah',
+                style: TextStyle(
+                  fontSize: 9,
+                ),
               ),
             ),
           ],
@@ -311,28 +307,25 @@ class _KonversiHijriahScreenState
   }
 
   Widget _infoHijriah(String label, String value) {
-    return Expanded(
-      child: Column(
-        children: [
-          Text(
-            label,
-            style: const TextStyle(
-              color: Colors.white54,
-              fontSize: 13,
-            ),
+    return Column(
+      children: [
+        Text(
+          label,
+          style: const TextStyle(
+            color: Color(0xFFB7AA99),
+            fontSize: 7,
           ),
-          const SizedBox(height: 5),
-          Text(
-            value,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 15,
-              fontWeight: FontWeight.bold,
-            ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          value,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 7,
+            fontWeight: FontWeight.bold,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
