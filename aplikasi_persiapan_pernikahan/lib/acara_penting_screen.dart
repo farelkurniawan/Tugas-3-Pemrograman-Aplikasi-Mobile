@@ -86,11 +86,16 @@ class AcaraPentingScreen extends StatelessWidget {
                       suffixIcon: Icon(Icons.calendar_today, color: Color(0xFFD5CEA3)),
                     ),
                     onTap: () async {
+                      final DateTime now = DateTime.now();
+                      final DateTime today = DateTime(now.year, now.month, now.day);
+                      final DateTime firstDate = selectedDate != null && selectedDate!.isBefore(today)
+                          ? selectedDate!
+                          : today;
                       DateTime? pickedDate = await showDatePicker(
                         context: context,
-                        initialDate: selectedDate ?? DateTime.now(),
-                        firstDate: DateTime.now(), 
-                        lastDate: DateTime(2100),  
+                        initialDate: selectedDate ?? today,
+                        firstDate: firstDate,
+                        lastDate: DateTime(9999),  
                         builder: (context, child) {
                           return Theme(
                             data: Theme.of(context).copyWith(
