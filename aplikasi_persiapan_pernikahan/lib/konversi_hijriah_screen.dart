@@ -60,8 +60,8 @@ class _KonversiHijriahScreenState extends State<KonversiHijriahScreen> {
     final tanggal = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1937),
-      lastDate: DateTime(2077),
+      firstDate: DateTime(100),
+      lastDate: DateTime(2100),
     );
 
     if (tanggal == null) {
