@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
+// Layar manajemen agenda pernikahan yang mengimplementasikan operasi CRUD data ke Cloud Firestore secara real-time.
 class AcaraPentingScreen extends StatelessWidget {
   const AcaraPentingScreen({super.key});
 
+  // Menampilkan modal form fleksibel untuk input data baru (Create) maupun mengubah data yang sudah ada (Update).
   void _showForm(BuildContext context, [DocumentSnapshot? documentSnapshot]) {
     final TextEditingController namaAcaraController = TextEditingController();
     final TextEditingController tanggalController = TextEditingController();
@@ -12,6 +14,7 @@ class AcaraPentingScreen extends StatelessWidget {
     DateTime? selectedDate;
     TimeOfDay? selectedTime;
 
+    // Mem-parsing string tanggal dan waktu dari Firestore ke objek DateTime & TimeOfDay untuk mengisi awal (prefill) form edit.
     if (documentSnapshot != null) {
       namaAcaraController.text = documentSnapshot['nama_acara'];
       String tglStr = documentSnapshot['tanggal'];
@@ -39,6 +42,7 @@ class AcaraPentingScreen extends StatelessWidget {
       }
     }
 
+    // Menampilkan form input responsif dari bawah layar dengan StatefulBuilder agar state modal dapat di-update secara mandiri.
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF3C2A21),
@@ -85,6 +89,7 @@ class AcaraPentingScreen extends StatelessWidget {
                       focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                       suffixIcon: Icon(Icons.calendar_today, color: Color(0xFFD5CEA3)),
                     ),
+                    // Membuka dialog pemilih tanggal (DatePicker) dengan validasi agar pengguna tidak memilih tanggal di masa lalu.
                     onTap: () async {
                       final DateTime now = DateTime.now();
                       final DateTime today = DateTime(now.year, now.month, now.day);
@@ -131,6 +136,7 @@ class AcaraPentingScreen extends StatelessWidget {
                       focusedBorder: UnderlineInputBorder(borderSide: BorderSide(color: Colors.white)),
                       suffixIcon: Icon(Icons.access_time, color: Color(0xFFD5CEA3)),
                     ),
+                    // Membuka dialog pemilih waktu (TimePicker) untuk memastikan format penulisan jam dan menit tersimpan seragam.
                     onTap: () async {
                       TimeOfDay? pickedTime = await showTimePicker(
                         context: context,
@@ -170,6 +176,7 @@ class AcaraPentingScreen extends StatelessWidget {
                         foregroundColor: Colors.black,
                       ),
                       onPressed: () async {
+                        // Memvalidasi kelengkapan form input serta memastikan jadwal acara tidak berada di masa lalu.
                         if (namaAcaraController.text.isEmpty || tanggalController.text.isEmpty || waktuController.text.isEmpty) {
                           showDialog(
                             context: context,
@@ -219,6 +226,7 @@ class AcaraPentingScreen extends StatelessWidget {
                           }
                         }
 
+                        // Menjalankan operasi 'add' untuk dokumen baru (Create) atau 'update' jika sedang mengedit dokumen yang ada (Update).
                         if (documentSnapshot == null) {
                           await FirebaseFirestore.instance.collection('acara_penting').add({
                             'nama_acara': namaAcaraController.text,
@@ -255,6 +263,7 @@ class AcaraPentingScreen extends StatelessWidget {
         backgroundColor: Colors.black,
         iconTheme: const IconThemeData(color: Color(0xFFD5CEA3)),
       ),
+      // Menggunakan StreamBuilder agar data dari Firestore selalu update secara real-time di UI saat terjadi perubahan database.
       body: StreamBuilder(
         stream: FirebaseFirestore.instance.collection('acara_penting').snapshots(),
         builder: (context, AsyncSnapshot<QuerySnapshot> streamSnapshot) {
@@ -264,6 +273,7 @@ class AcaraPentingScreen extends StatelessWidget {
                 child: Text('Belum ada acara penting. Silakan tambah.', style: TextStyle(color: Colors.white)),
               );
             }
+            // Merender daftar item acara secara efisien (lazy-loading) sesuai jumlah data pada Firestore snapshot.
             return ListView.builder(
               itemCount: streamSnapshot.data!.docs.length,
               itemBuilder: (context, index) {
@@ -305,6 +315,7 @@ class AcaraPentingScreen extends StatelessWidget {
                               padding: EdgeInsets.zero,
                             ),
                             const SizedBox(height: 8),
+                            // Menghapus dokumen acara dari Firestore berdasarkan ID unik dokumen setelah konfirmasi dialog disetujui.
                             IconButton(
                               icon: const Icon(Icons.delete, color: Colors.redAccent),
                               onPressed: () async {
@@ -345,6 +356,7 @@ class AcaraPentingScreen extends StatelessWidget {
           return const Center(child: CircularProgressIndicator(color: Color(0xFFD5CEA3)));
         },
       ),
+      // Tombol aksi mengambang (FAB) untuk membuka modal form tambah acara baru dalam kondisi form kosong.
       floatingActionButton: FloatingActionButton(
         backgroundColor: Color(0xFFD5CEA3),
         onPressed: () => _showForm(context),

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+// Layar kalkulator weton pernikahan berbasis algoritma penanggalan tradisional Jawa dan perhitungan kecocokan neptu.
 class HitungWetonScreen extends StatefulWidget {
   const HitungWetonScreen({super.key});
 
@@ -8,6 +9,7 @@ class HitungWetonScreen extends StatefulWidget {
 }
 
 class _HitungWetonScreenState extends State<HitungWetonScreen> {
+  // Tabel referensi (lookup table) nilai neptu hari dan pasaran berdasarkan patokan baku penanggalan Jawa.
   final Map<String, int> nilaiHari = {
     'Senin': 4, 'Selasa': 3, 'Rabu': 7, 'Kamis': 8, 'Jumat': 6, 'Sabtu': 9, 'Minggu': 5
   };
@@ -27,6 +29,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
   String deskripsiKecocokan = '';
   int totalNeptu = 0;
 
+  // Mengonversi tanggal Masehi ke weton Jawa dengan menghitung selisih hari terhadap titik acuan (Epoch 1970) bersiklus 5 pasaran.
   void hitungWetonDariTanggal(DateTime date, bool isPria) {
     List<String> daftarHari = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
     String hari = daftarHari[date.weekday - 1];
@@ -54,6 +57,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
     });
   }
 
+  // Menghitung ramalan kecocokan jodoh dengan menjumlahkan neptu kedua pasangan lalu diuji modulo 8 (siklus 8 kategori Primbon).
   void prosesKecocokan() {
     if (neptuPria == 0 || neptuWanita == 0) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,6 +107,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
     });
   }
 
+  // Komponen widget modular (reusable) untuk input tanggal lahir dan menampilkan ringkasan neptu masing-masing pasangan.
   Widget buildDateInput(String label, TextEditingController controller, String infoWeton, bool isPria) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -145,6 +150,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
               },
             );
 
+            // Memicu konversi tanggal ke siklus weton secara instan sesaat setelah pengguna memilih tanggal di DatePicker.
             if (pickedDate != null) {
               hitungWetonDariTanggal(pickedDate, isPria);
             }
@@ -189,6 +195,7 @@ class _HitungWetonScreenState extends State<HitungWetonScreen> {
               child: const Text('Hitung Kecocokan'),
             ),
             const SizedBox(height: 30),
+            // Merender kartu kesimpulan secara kondisional hanya saat proses perhitungan weton telah selesai dijalankan.
             if (hasilKecocokan.isNotEmpty)
               Container(
                 padding: const EdgeInsets.all(20),

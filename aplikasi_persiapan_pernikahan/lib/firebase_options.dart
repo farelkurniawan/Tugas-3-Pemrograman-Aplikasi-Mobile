@@ -14,7 +14,9 @@ import 'package:flutter/foundation.dart'
 ///   options: DefaultFirebaseOptions.currentPlatform,
 /// );
 /// ```
+// Kelas konfigurasi FlutterFire CLI untuk menghubungkan aplikasi ke backend Firebase sesuai target platform.
 class DefaultFirebaseOptions {
+  // Mendeteksi platform OS yang sedang aktif agar inisialisasi Firebase memuat kredensial yang tepat secara dinamis.
   static FirebaseOptions get currentPlatform {
     if (kIsWeb) {
       return web;
@@ -46,6 +48,7 @@ class DefaultFirebaseOptions {
     }
   }
 
+  // Kredensial dan konfigurasi API key Firebase khusus saat aplikasi dijalankan pada browser (Web).
   static const FirebaseOptions web = FirebaseOptions(
     apiKey: 'AIzaSyDhSFZwEkrxsKvv78Layk4iyEkotrEcQ_Q',
     appId: '1:801688103491:web:858adf9e4c90b66cd202f6',
@@ -56,6 +59,7 @@ class DefaultFirebaseOptions {
     measurementId: 'G-95T8VRYMJX',
   );
 
+  // Kredensial Firebase khusus Android agar aplikasi terhubung ke layanan cloud backend (Firestore/Auth).
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyAonh03_vp7U_fDqeSdQ6usGrKARUA7bdI',
     appId: '1:801688103491:android:c853c04047715cd3d202f6',
@@ -64,6 +68,7 @@ class DefaultFirebaseOptions {
     storageBucket: 'tugas-app-pernikahan.firebasestorage.app',
   );
 
+  // Kredensial Firebase untuk platform desktop Windows agar mendukung arsitektur multi-platform native.
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyDhSFZwEkrxsKvv78Layk4iyEkotrEcQ_Q',
     appId: '1:801688103491:web:676ab66116d8e0b6d202f6',
